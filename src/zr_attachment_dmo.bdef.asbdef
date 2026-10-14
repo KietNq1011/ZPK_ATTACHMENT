@@ -1,0 +1,88 @@
+managed implementation in class ZBP_R_ATTACHMENT_DMO unique;
+strict ( 2 );
+with draft;
+define behavior for ZR_ATTACHMENT_DMO alias Attachment
+persistent table ztb_att_dmo
+draft table ztb_att_d_dmo
+etag master LocalLastChangedAt
+lock master total etag LastChangedAt
+authorization master ( global )
+{
+  field ( readonly )
+  UUID,
+  CreatedBy,
+  CreatedAt,
+  LocalLastChangedBy,
+  LocalLastChangedAt,
+  LastChangedAt;
+
+  field ( numbering : managed )
+  UUID;
+
+
+  create;
+  update;
+  delete;
+
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Edit;
+  draft action Resume;
+  draft determine action Prepare;
+
+
+  association _AttachmentItem { create; with draft; }
+
+  mapping for ztb_att_dmo corresponding
+    {
+      UUID               = uuid;
+      ModuleObject       = module_object;
+      AppID              = app_id;
+      Attachment         = attachment;
+      Filename           = filename;
+      Mimetype           = mimetype;
+      Note               = note;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
+
+}
+
+
+define behavior for ZI_ATTACHMENT_I_DMO alias AttachmentItem
+persistent table ztb_att_i_dmo
+draft table ztb_att_id_dmo
+lock dependent by _Attachment
+authorization dependent by _Attachment
+etag master LocalLastChangedAt
+early numbering
+{
+  update;
+  delete;
+
+  field ( readonly )
+  CreatedBy, CreatedAt, LocalLastChangedBy, LocalLastChangedAt, LastChangedAt;
+
+  field ( readonly : update )
+  AttachmentId, ModuleObject, AppId, DocumentId;
+
+  association _Attachment { with draft; }
+
+  mapping for ztb_att_i_dmo corresponding
+    {
+      AttachmentID       = attachment_id;
+      ModuleObject       = module_object;
+      AppId              = app_id;
+      DocumentId         = document_id;
+      Note               = note;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
+
+}
